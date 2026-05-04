@@ -325,16 +325,3 @@ RETURN length(path) AS hops, [n IN nodes(path) | n.id] AS path_ids;
 | `AUTHORED_BY` | Paper → Author | Paper was written by Author |
 | `HAS_CATEGORY` | Paper → Category | Paper belongs to Category |
 | `CITES` | Paper → Paper | Paper cites another Paper |
-
----
-
-## 🐛 Troubleshooting
-
-| Issue | Fix |
-|-------|-----|
-| Frontend can't connect to Neo4j | Ensure Neo4j is running and HTTP connector is enabled on port 7474 |
-| CORS error in browser console | Add `dbms.connector.http.allowed_origins=*` in Neo4j settings |
-| CSV load fails in Cypher | Make sure CSVs are placed inside Neo4j's `import/` folder |
-| `npm install` fails | Use Node.js 18 LTS; delete `node_modules` and `package-lock.json` then retry |
-| Wrong password error | Update `neo4j.service.ts` with your actual Neo4j password |
-| Python script fails | Ensure `python3` is in PATH; install any missing pip packages |
