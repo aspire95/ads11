@@ -1,0 +1,284 @@
+<section class="app-shell">
+
+  <!-- ═══════════════════  SIDEBAR  ═══════════════════ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="8"  r="5" fill="#6C63FF"/>
+          <circle cx="8"  cy="30" r="5" fill="#00D4AA"/>
+          <circle cx="32" cy="30" r="5" fill="#FF6584"/>
+          <line x1="20" y1="8"  x2="8"  y2="30" stroke="#6C63FF" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <line x1="20" y1="8"  x2="32" y2="30" stroke="#6C63FF" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <line x1="8"  y1="30" x2="32" y2="30" stroke="#00D4AA" stroke-width="1.5" stroke-dasharray="3 2"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-name">ResearchGraph</h1>
+        <span class="brand-sub">Cora Dataset · Neo4j</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <button id="nav-citation"      class="nav-btn" [class.active]="activeQuery==='citation'"
+              (click)="setQuery('citation')">
+        <span class="nav-icon">🔗</span>
+        <span>Citation Path</span>
+        <span class="nav-badge">A</span>
+      </button>
+      <button id="nav-classification" class="nav-btn" [class.active]="activeQuery==='classification'"
+              (click)="setQuery('classification')">
+        <span class="nav-icon">📂</span>
+        <span>Classification</span>
+        <span class="nav-badge">B</span>
+      </button>
+      <button id="nav-top-cited"     class="nav-btn" [class.active]="activeQuery==='top-cited'"
+              (click)="setQuery('top-cited')">
+        <span class="nav-icon">🏆</span>
+        <span>Top Cited</span>
+        <span class="nav-badge">C</span>
+      </button>
+      <button id="nav-author"        class="nav-btn" [class.active]="activeQuery==='author'"
+              (click)="setQuery('author')">
+        <span class="nav-icon">👤</span>
+        <span>By Author</span>
+        <span class="nav-badge">C</span>
+      </button>
+      <button id="nav-custom"        class="nav-btn" [class.active]="activeQuery==='custom'"
+              (click)="setQuery('custom')">
+        <span class="nav-icon">✏️</span>
+        <span>Custom Cypher</span>
+        <span class="nav-badge">C</span>
+      </button>
+    </nav>
+
+    <!-- Quick Examples -->
+    <div class="sidebar-section">
+      <p class="sidebar-label">Quick Examples</p>
+      <button class="example-btn" *ngFor="let ex of examples" (click)="applyExample(ex)">
+        {{ ex.label }}
+      </button>
+    </div>
+
+    <!-- History -->
+    <div class="sidebar-section" *ngIf="history.length > 0">
+      <p class="sidebar-label">Recent Queries</p>
+      <div class="history-item" *ngFor="let h of history">
+        <span class="history-dot"></span>
+        <span class="history-label">{{ h.label }}</span>
+        <span class="history-time">{{ h.time }}</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <span>TY B.Tech CSE · ADS Lab</span>
+      <span>Assignment 11</span>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════  MAIN  ═══════════════════ -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <header class="page-header">
+      <div>
+        <h2 class="page-title">
+          <ng-container [ngSwitch]="activeQuery">
+            <ng-container *ngSwitchCase="'citation'">🔗 Citation Path Finder</ng-container>
+            <ng-container *ngSwitchCase="'classification'">📂 Paper Classification</ng-container>
+            <ng-container *ngSwitchCase="'top-cited'">🏆 Top Cited Papers</ng-container>
+            <ng-container *ngSwitchCase="'author'">👤 Author Search</ng-container>
+            <ng-container *ngSwitchCase="'custom'">✏️ Custom Cypher Query</ng-container>
+          </ng-container>
+        </h2>
+        <p class="page-desc">
+          <ng-container [ngSwitch]="activeQuery">
+            <ng-container *ngSwitchCase="'citation'">Check if paper A cites paper B — directly or through an indirect chain</ng-container>
+            <ng-container *ngSwitchCase="'classification'">View the full hierarchical classification path of any paper</ng-container>
+            <ng-container *ngSwitchCase="'top-cited'">Discover the most cited papers, optionally filtered by category</ng-container>
+            <ng-container *ngSwitchCase="'author'">Find all papers written by a specific author</ng-container>
+            <ng-container *ngSwitchCase="'custom'">Write and execute any Cypher query on the Neo4j graph</ng-container>
+          </ng-container>
+        </p>
+      </div>
+    </header>
+
+    <!-- ─── Form Card ────────────────────────────────── -->
+    <div class="form-card">
+
+      <!-- CITATION FORM -->
+      <div *ngIf="activeQuery === 'citation'" class="form-grid">
+        <div class="field-group">
+          <label class="field-label" for="paperA">Paper A (Citing)</label>
+          <input id="paperA" class="field-input" type="text" [(ngModel)]="paperA"
+                 placeholder="e.g. 1033" />
+        </div>
+        <div class="field-group arrow-col">
+          <span class="arrow-icon">→</span>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="paperB">Paper B (Cited)</label>
+          <input id="paperB" class="field-input" type="text" [(ngModel)]="paperB"
+                 placeholder="e.g. 35" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="maxDepth">Max Hops (depth)</label>
+          <select id="maxDepth" class="field-input" [(ngModel)]="maxDepth">
+            <option [value]="1">1 – Direct only</option>
+            <option [value]="2">2</option>
+            <option [value]="3">3</option>
+            <option [value]="5">5 (recommended)</option>
+            <option [value]="8">8 – Deep search</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- CLASSIFICATION FORM -->
+      <div *ngIf="activeQuery === 'classification'" class="form-grid">
+        <div class="field-group field-wide">
+          <label class="field-label" for="classifyPaperId">Paper ID</label>
+          <input id="classifyPaperId" class="field-input" type="text" [(ngModel)]="classifyPaperId"
+                 placeholder="e.g. 1106406" />
+        </div>
+      </div>
+
+      <!-- TOP CITED FORM -->
+      <div *ngIf="activeQuery === 'top-cited'" class="form-grid">
+        <div class="field-group">
+          <label class="field-label" for="filterCategory">Category Filter</label>
+          <select id="filterCategory" class="field-input" [(ngModel)]="filterCategory">
+            <option value="">All Categories</option>
+            <option *ngFor="let c of categories.slice(1)" [value]="c">{{ c | titlecase }}</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="topLimit">Show Top</label>
+          <select id="topLimit" class="field-input" [(ngModel)]="topLimit">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- AUTHOR FORM -->
+      <div *ngIf="activeQuery === 'author'" class="form-grid">
+        <div class="field-group field-wide">
+          <label class="field-label" for="authorName">Author Name</label>
+          <input id="authorName" class="field-input" type="text" [(ngModel)]="authorName"
+                 placeholder="e.g. Author_1106406" />
+        </div>
+      </div>
+
+      <!-- CUSTOM CYPHER FORM -->
+      <div *ngIf="activeQuery === 'custom'" class="form-grid">
+        <div class="field-group field-full">
+          <label class="field-label" for="customCypher">Cypher Query</label>
+          <textarea id="customCypher" class="field-textarea" [(ngModel)]="customCypher"
+                    rows="6" spellcheck="false"></textarea>
+          <p class="field-hint">
+            Tip: always end with RETURN and a LIMIT clause for best performance.
+          </p>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button id="run-query-btn" class="run-btn" (click)="runQuery()" [disabled]="loading">
+          <span *ngIf="!loading">▶ Run Query</span>
+          <span *ngIf="loading" class="spinner-text">
+            <span class="spinner"></span> Running…
+          </span>
+        </button>
+        <button class="stats-btn" (click)="getCategoryStats()">📊 Category Stats</button>
+      </div>
+    </div>
+
+    <!-- ─── Error Banner ────────────────────────────── -->
+    <div *ngIf="errorMsg" class="error-banner">
+      <span class="error-icon">⚠</span>
+      <div>
+        <strong>Query Error</strong>
+        <p>{{ errorMsg }}</p>
+        <p class="error-hint">Make sure Neo4j is running on port 7474 and CORS is enabled.</p>
+      </div>
+    </div>
+
+    <!-- ─── Citation Result – special UI ───────────── -->
+    <div *ngIf="isCitationFound()" class="citation-result found">
+      <div class="citation-header">
+        <span class="badge-found">✓ Citation Found</span>
+        <span class="citation-meta">{{ result!.rows.length }} path(s) discovered</span>
+      </div>
+      <div class="citation-path" *ngFor="let row of result!.rows; let i = index">
+        <div class="path-meta">
+          <span class="depth-badge">{{ getDepthBadge(row) }}</span>
+          <span class="path-papers">{{ row[0] }} → {{ row[1] }}</span>
+        </div>
+        <div class="path-chain">
+          <span class="chain-node" *ngFor="let node of row[3]; let last = last">
+            <span class="node-id">{{ node }}</span>
+            <span *ngIf="!last" class="chain-arrow">→</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isCitationNotFound()" class="citation-result not-found">
+      <span class="badge-not-found">✗ No Citation Path</span>
+      <p>Paper <strong>{{ paperA }}</strong> does not cite paper <strong>{{ paperB }}</strong>
+         within {{ maxDepth }} hops.</p>
+    </div>
+
+    <!-- ─── General Results Table ───────────────────── -->
+    <div *ngIf="hasResults && activeQuery !== 'citation'" class="results-section">
+      <div class="results-header">
+        <span class="results-count">{{ result!.rows.length }} result(s) returned</span>
+      </div>
+
+      <!-- Classification special display -->
+      <div *ngIf="activeQuery === 'classification'" class="class-path-display">
+        <div class="class-card" *ngFor="let row of result!.rows">
+          <div class="class-paper-id">Paper ID: {{ row[0] }}</div>
+          <div class="class-breadcrumb">
+            <ng-container *ngFor="let part of row[2].split(' / '); let last = last">
+              <span class="breadcrumb-item">{{ part }}</span>
+              <span *ngIf="!last" class="breadcrumb-sep">›</span>
+            </ng-container>
+          </div>
+          <div class="class-leaf">{{ row[1] }}</div>
+        </div>
+      </div>
+
+      <!-- Standard table for all other queries -->
+      <div *ngIf="activeQuery !== 'classification'" class="table-wrapper">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th *ngFor="let col of result!.columns">{{ col }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of result!.rows; let i = index" [class.even]="i % 2 === 0">
+              <td *ngFor="let cell of row">
+                <ng-container *ngIf="isArray(cell); else plain">
+                  <span class="array-val">{{ cell.join(' → ') }}</span>
+                </ng-container>
+                <ng-template #plain>{{ cell }}</ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && !errorMsg && !result" class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>Run a query to see results</h3>
+      <p>Select a query type from the sidebar, fill in the parameters, and click <em>Run Query</em>.</p>
+    </div>
+
+  </main>
+</section>

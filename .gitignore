@@ -1,0 +1,27 @@
+# ─── Node / Angular ───────────────────────────────────────────
+node_modules/
+dist/
+.angular/cache/
+*.tsbuildinfo
+
+# ─── Large binary / archive files ────────────────────────────
+*.gz
+*.tgz
+*.zip
+*.msi
+*.tar
+
+# ─── Python ───────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# ─── OS / Editor ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/settings.json
+
+# ─── Neo4j ────────────────────────────────────────────────────
+# (no generated files to ignore here)
